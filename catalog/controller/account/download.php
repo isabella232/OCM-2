@@ -1,59 +1,40 @@
 <?php
 class ControllerAccountDownload extends Controller {
 	public function index() {
-		if (!$this->customer->isLogged()) {
+		$data = array();
+		$data = array_merge($data, $this->load->language('account/download'));
+		
+		if (!$this->customer->isLogged() || !isset($this->request->get['token']) || !isset($this->session->data['token']) || ($this->request->get['token'] != $this->session->data['token'])) {
 			$this->session->data['redirect'] = $this->url->link('account/download', '', true);
-
 			$this->response->redirect($this->url->link('account/login', '', true));
 		}
 
 		$this->load->language('account/download');
 
-		$this->document->setTitle($this->language->get('heading_title'));
+		$this->document->setTitle($data['heading_title']);
 
 		$data['breadcrumbs'] = array();
-
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home')
+			'text' => $data['text_home'],
+			'href' => $this->link('common/home')
 		);
-
+		
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_account'),
-			'href' => $this->url->link('account/account', '', true)
+			'text' => $data['text_account'],
+			'href' => $this->link('account/account', '', true)
 		);
-
+		
 		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_downloads'),
-			'href' => $this->url->link('account/download', '', true)
+			'text' => $data['text_downloads'],
+			'href' => $this->link('account/download', '', true)
 		);
 
 		$this->load->model('account/download');
+		$page 				= (isset($this->request->get['page'])) ? $this->request->get['page'] : 1;
+		$data['downloads'] 	= array();
+		$download_total 	= $this->model_account_download->getTotalDownloads();
 
-		$data['heading_title'] = $this->language->get('heading_title');
-
-		$data['text_empty'] = $this->language->get('text_empty');
-
-		$data['column_order_id'] = $this->language->get('column_order_id');
-		$data['column_name'] = $this->language->get('column_name');
-		$data['column_size'] = $this->language->get('column_size');
-		$data['column_date_added'] = $this->language->get('column_date_added');
-
-		$data['button_download'] = $this->language->get('button_download');
-		$data['button_continue'] = $this->language->get('button_continue');
-
-		if (isset($this->request->get['page'])) {
-			$page = $this->request->get['page'];
-		} else {
-			$page = 1;
-		}
-
-		$data['downloads'] = array();
-
-		$download_total = $this->model_account_download->getTotalDownloads();
-
-		$results = $this->model_account_download->getDownloads(($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit'), $this->config->get($this->config->get('config_theme') . '_product_limit'));
-
+		$results 			= $this->model_account_download->getDownloads(($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit'), $this->config->get($this->config->get('config_theme') . '_product_limit'));
 		foreach ($results as $result) {
 			if (file_exists(DIR_DOWNLOAD . $result['filename'])) {
 				$size = filesize(DIR_DOWNLOAD . $result['filename']);
@@ -82,50 +63,42 @@ class ControllerAccountDownload extends Controller {
 					'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 					'name'       => $result['name'],
 					'size'       => round(substr($size, 0, strpos($size, '.') + 4), 2) . $suffix[$i],
-					'href'       => $this->url->link('account/download/download', 'download_id=' . $result['download_id'], true)
+					'href'       => $this->link('account/download/download', 'download_id=' . $result['download_id'], true)
 				);
 			}
 		}
 
-		$pagination = new Pagination();
-		$pagination->total = $download_total;
-		$pagination->page = $page;
-		$pagination->limit = $this->config->get($this->config->get('config_theme') . '_product_limit');
-		$pagination->url = $this->url->link('account/download', 'page={page}', true);
+		$pagination 			= new Pagination();
+		$pagination->total 		= $download_total;
+		$pagination->page 		= $page;
+		$pagination->limit 		= $this->config->get($this->config->get('config_theme') . '_product_limit');
+		$pagination->url 		= $this->link('account/download', 'page={page}', true);
 
-		$data['pagination'] = $pagination->render();
+		$data['pagination']		= $pagination->render();
 
-		$data['results'] = sprintf($this->language->get('text_pagination'), ($download_total) ? (($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) + 1 : 0, ((($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) > ($download_total - $this->config->get($this->config->get('config_theme') . '_product_limit'))) ? $download_total : ((($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) + $this->config->get($this->config->get($this->config->get('config_theme') . '_theme') . '_product_limit')), $download_total, ceil($download_total / $this->config->get($this->config->get('config_theme') . '_product_limit')));
+		$data['results']		= sprintf($this->language->get('text_pagination'), ($download_total) ? (($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) + 1 : 0, ((($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) > ($download_total - $this->config->get($this->config->get('config_theme') . '_product_limit'))) ? $download_total : ((($page - 1) * $this->config->get($this->config->get('config_theme') . '_product_limit')) + $this->config->get($this->config->get($this->config->get('config_theme') . '_theme') . '_product_limit')), $download_total, ceil($download_total / $this->config->get($this->config->get('config_theme') . '_product_limit')));
 
-		$data['continue'] = $this->url->link('account/account', '', true);
+		$data['continue'] 		= $this->link('account/account', '', true);
 
-		$data['column_left'] = $this->load->controller('common/column_left');
-		$data['column_right'] = $this->load->controller('common/column_right');
-		$data['content_top'] = $this->load->controller('common/content_top');
+		$data['column_left'] 	= $this->load->controller('common/column_left');
+		$data['column_right'] 	= $this->load->controller('common/column_right');
+		$data['content_top'] 	= $this->load->controller('common/content_top');
 		$data['content_bottom'] = $this->load->controller('common/content_bottom');
-		$data['footer'] = $this->load->controller('common/footer');
-		$data['header'] = $this->load->controller('common/header');
+		$data['footer'] 		= $this->load->controller('common/footer');
+		$data['header'] 		= $this->load->controller('common/header');
 
 		$this->response->setOutput($this->load->view('account/download', $data));
 	}
 
 	public function download() {
-		if (!$this->customer->isLogged()) {
+		if (!$this->customer->isLogged() || !isset($this->request->get['token']) || !isset($this->session->data['token']) || ($this->request->get['token'] != $this->session->data['token'])) {
 			$this->session->data['redirect'] = $this->url->link('account/download', '', true);
-
 			$this->response->redirect($this->url->link('account/login', '', true));
 		}
 
 		$this->load->model('account/download');
-
-		if (isset($this->request->get['download_id'])) {
-			$download_id = $this->request->get['download_id'];
-		} else {
-			$download_id = 0;
-		}
-
-		$download_info = $this->model_account_download->getDownload($download_id);
-
+		$download_id 	= (isset($this->request->get['download_id'])) ? $this->request->get['download_id'] : 0;
+		$download_info 	= $this->model_account_download->getDownload($download_id);
 		if ($download_info) {
 			$file = DIR_DOWNLOAD . $download_info['filename'];
 			$mask = basename($download_info['mask']);
@@ -153,7 +126,13 @@ class ControllerAccountDownload extends Controller {
 				exit('Error: Headers already sent out!');
 			}
 		} else {
-			$this->response->redirect($this->url->link('account/download', '', true));
+			$this->response->redirect($this->link('account/download', '', true));
 		}
+	}
+	
+	private function link($route, $args = '', $secure = false) {
+		$url  = ($secure && isset($this->session->data['token'])) ? '&token=' . $this->session->data['token'] : '';
+		$url .= $args;
+		return $this->url->link($route, $url, $secure);
 	}
 }

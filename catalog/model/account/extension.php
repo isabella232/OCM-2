@@ -3,12 +3,16 @@ class ModelAccountExtension extends Model {
 	private $db_table	= 'product';
 	
 	public function addExtension($data) {
+		$data['images'] = !empty($data['images']) ? $data['images'] : array();
+		
 		$this->db->query("INSERT INTO " . DB_PREFIX . $this->db_table . " SET seller_id = '" . (int)$this->customer->getId() . "', name = '" . $this->db->escape($data['name']) . "', description = '" . $this->db->escape($data['description']) . "', documentation = '" . $this->db->escape($data['documentation']) . "', changelog = '" . $this->db->escape($data['changelog']) . "', category_id = '" . (int)$data['category_id'] . "', license = '" . (int)$data['license'] . "', license_period = '" . (int)$data['license_period'] . "', price = '" . (float)$data['price'] . "', price_renew = '" . (float)$data['price_renew'] . "', demo_catalog = '" . $this->db->escape($data['demo_catalog']) . "', demo_admin = '" . $this->db->escape($data['demo_admin']) . "', demo_user = '" . $this->db->escape($data['demo_user']) . "', demo_pass = '" . $this->db->escape($data['demo_pass']) . "', tag = '" . $this->db->escape($data['tag']) . "', image = '" . $this->db->escape($data['image']) . "', banner = '" . $this->db->escape($data['banner']) . "', images = '" . $this->db->escape(json_encode($data['images'])) . "', downloads = '" . $this->db->escape(json_encode($data['downloads'])) . "', ga_tracking = '" . $this->db->escape($data['ga_tracking']) . "', status = '" . (int)$data['status'] . "', approved = '0', date_added = NOW(), date_modified = NOW()");
 	
 		return $this->db->getLastId();
 	}
 	
 	public function editExtension($extension_id, $data) {
+		$data['images'] = !empty($data['images']) ? $data['images'] : array();
+		
 		$this->db->query("UPDATE " . DB_PREFIX . $this->db_table . " SET name = '" . $this->db->escape($data['name']) . "', description = '" . $this->db->escape($data['description']) . "', documentation = '" . $this->db->escape($data['documentation']) . "', changelog = '" . $this->db->escape($data['changelog']) . "', category_id = '" . (int)$data['category_id'] . "', license = '" . (int)$data['license'] . "', license_period = '" . (int)$data['license_period'] . "', price = '" . (float)$data['price'] . "', price_renew = '" . (float)$data['price_renew'] . "', demo_catalog = '" . $this->db->escape($data['demo_catalog']) . "', demo_admin = '" . $this->db->escape($data['demo_admin']) . "', demo_user = '" . $this->db->escape($data['demo_user']) . "', demo_pass = '" . $this->db->escape($data['demo_pass']) . "', tag = '" . $this->db->escape($data['tag']) . "', image = '" . $this->db->escape($data['image']) . "', banner = '" . $this->db->escape($data['banner']) . "', images = '" . $this->db->escape(json_encode($data['images'])) . "', downloads = '" . $this->db->escape(json_encode($data['downloads'])) . "', ga_tracking = '" . $this->db->escape($data['ga_tracking']) . "', status = '" . (int)$data['status'] . "', date_modified = NOW() WHERE extension_id = '" . (int)$extension_id . "' AND seller_id = '" . (int)$this->customer->getId() . "'");
 	}
 
@@ -35,7 +39,7 @@ class ModelAccountExtension extends Model {
 				'image'				=> $query->row['image'],
 				'banner'			=> $query->row['banner'],
 				'images'			=> json_decode($query->row['images'], true),
-				'downloads'			=> json_decode($query->row['download'], true),
+				'downloads'			=> json_decode($query->row['downloads'], true),
 				'ga_tracking'		=> $query->row['ga_tracking'],
 				'status'			=> $query->row['status'],
 				'approved'			=> $query->row['approved'],

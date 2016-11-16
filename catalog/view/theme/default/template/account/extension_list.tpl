@@ -28,6 +28,7 @@
               <td class="text-left"><?php echo $column_status; ?></td>
               <td class="text-left"><?php echo $column_approved; ?></td>
               <td class="text-left"><?php echo $column_date_added; ?></td>
+              <td class="text-left"><?php echo $column_date_modified; ?></td>
               <td class="text-right"><?php echo $column_action; ?></td>
             </tr>
           </thead>
@@ -39,10 +40,11 @@
               <td class="text-left"><?php echo $extension['status']; ?></td>
               <td class="text-left"><?php echo $extension['approved']; ?></td>
               <td class="text-left"><?php echo $extension['date_added']; ?></td>
+              <td class="text-left"><?php echo $extension['date_modified']; ?></td>
               <td class="text-right">
-				<a href="<?php echo $extension['view']; ?>" class="btn btn-primary"><?php echo $button_view; ?></a>
-				<a href="<?php echo $extension['edit']; ?>" class="btn btn-primary"><?php echo $button_edit; ?></a>
-			  </td>
+                <a href="<?php echo $extension['view']; ?>" class="btn btn-primary"><?php echo $button_view; ?></a>
+                <a href="<?php echo $extension['edit']; ?>" class="btn btn-primary"><?php echo $button_edit; ?></a>
+              </td>
             </tr>
             <?php } ?>
           </tbody>
@@ -56,7 +58,10 @@
       <p><?php echo $text_empty; ?></p>
       <?php } ?>
       <div class="buttons clearfix">
-        <div class="pull-right"><a href="<?php echo $continue; ?>" class="btn btn-primary"><?php echo $button_continue; ?></a></div>
+        <div class="pull-right">
+          <a href="<?php echo $back; ?>" class="btn btn-link"><?php echo $button_back; ?></a>
+          <a href="<?php echo $add; ?>" class="btn btn-primary"><?php echo $button_add_extension; ?></a>
+        </div>
       </div>
       <?php echo $content_bottom; ?></div>
     <?php echo $column_right; ?></div>

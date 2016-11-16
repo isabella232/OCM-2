@@ -1,17 +1,17 @@
 <?php
 // Heading
-$_['heading_title']         = 'Order History';
+$_['heading_title']				= 'Order History';
+
+// Breadcrumbs
+$_['text_account']				= 'Account';
+$_['text_order']				= 'Order Details';
 
 // Text
-$_['text_account']          = 'Account';
-$_['text_order']            = 'Order Information';
-$_['text_order_detail']     = 'Order Details';
-$_['text_invoice_no']       = 'Invoice No.:';
-$_['text_order_id']         = 'Order ID:';
-$_['text_date_added']       = 'Date Added:';
-$_['text_shipping_address'] = 'Shipping Address';
-$_['text_shipping_method']  = 'Shipping Method:';
-$_['text_payment_address']  = 'Payment Address';
+$_['text_order_detail']			= 'Order Details';
+$_['text_invoice_no']			= 'Invoice No.';
+$_['text_order_id']				= 'Order ID';
+$_['text_date_added']			= 'Purchase Date';
+$_['text_address']  			= 'Address';
 $_['text_payment_method']   = 'Payment Method:';
 $_['text_comment']          = 'Order Comments';
 $_['text_history']          = 'Order History';

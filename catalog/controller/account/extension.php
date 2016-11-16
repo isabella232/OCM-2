@@ -3,7 +3,7 @@ class ControllerAccountExtension extends Controller {
 	private $error = array();
 
 	public function index() {
-		if (!$this->customer->isLogged()) {
+		if (!$this->customer->isLogged() || !isset($this->request->get['token']) || !isset($this->session->data['token']) || ($this->request->get['token'] != $this->session->data['token'])) {
 			$this->session->data['redirect'] = $this->url->link('account/extension', '', true);
 			$this->response->redirect($this->url->link('account/login', '', true));
 		}
@@ -18,7 +18,7 @@ class ControllerAccountExtension extends Controller {
 	}
 
 	public function add() {
-		if (!$this->customer->isLogged()) {
+		if (!$this->customer->isLogged() || !isset($this->request->get['token']) || !isset($this->session->data['token']) || ($this->request->get['token'] != $this->session->data['token'])) {
 			$this->session->data['redirect'] = $this->url->link('account/extension', '', true);
 			$this->response->redirect($this->url->link('account/login', '', true));
 		}
@@ -46,14 +46,14 @@ class ControllerAccountExtension extends Controller {
 				$this->model_account_activity->addActivity('extension_add', $activity_data);
 			}
 
-			$this->response->redirect($this->url->link('account/extension', '', true));
+			$this->response->redirect($this->link('account/extension', '', true));
 		}
 
 		$this->getForm();
 	}
 
 	public function edit() {
-		if (!$this->customer->isLogged()) {
+		if (!$this->customer->isLogged() || !isset($this->request->get['token']) || !isset($this->session->data['token']) || ($this->request->get['token'] != $this->session->data['token'])) {
 			$this->session->data['redirect'] = $this->url->link('account/extension', '', true);
 			$this->response->redirect($this->url->link('account/login', '', true));
 		}
@@ -81,7 +81,7 @@ class ControllerAccountExtension extends Controller {
 				$this->model_account_activity->addActivity('extension_edit', $activity_data);
 			}
 
-			$this->response->redirect($this->url->link('account/extension', '', true));
+			$this->response->redirect($this->link('account/extension', '', true));
 		}
 
 		$this->getForm();
@@ -94,17 +94,17 @@ class ControllerAccountExtension extends Controller {
 		$data['breadcrumbs'] = array();    
 		$data['breadcrumbs'][] = array(
 			'text' => $data['text_home'],
-			'href' => $this->url->link('common/home')
+			'href' => $this->link('common/home')
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $data['text_account'],
-			'href' => $this->url->link('account/account', '', true)
+			'href' => $this->link('account/account', '', true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $data['heading_title'],
-			'href' => $this->url->link('account/extension', '', true)
+			'href' => $this->link('account/extension', '', true)
 		);
 		
 		$data['success']		= isset($this->session->data['success']) ? $this->session->data['success'] : '';
@@ -112,11 +112,7 @@ class ControllerAccountExtension extends Controller {
 
 		$this->load->model('account/sale');
 		
-		if (isset($this->request->get['page'])) {
-			$page = $this->request->get['page'];
-		} else {
-			$page = 1;
-		}
+		$page 				= (isset($this->request->get['page'])) ? $this->request->get['page'] : 1;
 		
 		$data['extensions'] = array();
 		
@@ -137,8 +133,9 @@ class ControllerAccountExtension extends Controller {
 				'status'     	=> $result['status'],
 				'approved'     	=> $result['approved'],
 				'date_added'    => date($data['date_format_short'], strtotime($result['date_added'])),
-				'view'     		=> $this->url->link('marketplace/extension', 'extension_id=' . $result['extension_id'], true),
-				'edit'     		=> $this->url->link('account/extension/edit', 'extension_id=' . $result['extension_id'], true)
+				'date_modified' => date($data['date_format_short'], strtotime($result['date_modified'])),
+				'view'     		=> $this->link('marketplace/extension', 'extension_id=' . $result['extension_id'], true),
+				'edit'     		=> $this->link('account/extension/edit', 'extension_id=' . $result['extension_id'], true)
 			);
 		}
 		
@@ -148,14 +145,14 @@ class ControllerAccountExtension extends Controller {
 		$pagination->total 		= $extension_total;
 		$pagination->page 		= $page;
 		$pagination->limit 		= 10;
-		$pagination->url 		= $this->url->link('account/extension', 'page={page}', true);
+		$pagination->url 		= $this->link('account/extension', 'page={page}', true);
 
 		$data['pagination'] 	= $pagination->render();
 
 		$data['results'] 		= sprintf($data['text_pagination'], ($extension_total) ? (($page - 1) * 10) + 1 : 0, ((($page - 1) * 10) > ($extension_total - 10)) ? $extension_total : ((($page - 1) * 10) + 10), $extension_total, ceil($extension_total / 10));
 
-		$data['add'] 			= $this->url->link('account/extension/add', '', true);
-		$data['continue'] 		= $this->url->link('account/account', '', true);
+		$data['add'] 			= $this->link('account/extension/add', '', true);
+		$data['back'] 			= $this->link('account/account', '', true);
 
 		$data['column_left'] 	= $this->load->controller('common/column_left');
 		$data['column_right'] 	= $this->load->controller('common/column_right');
@@ -174,28 +171,28 @@ class ControllerAccountExtension extends Controller {
 		$data['breadcrumbs'] = array();
 		$data['breadcrumbs'][] = array(
 			'text' => $data['text_home'],
-			'href' => $this->url->link('common/home')
+			'href' => $this->link('common/home')
 		);
-
+		
 		$data['breadcrumbs'][] = array(
 			'text' => $data['text_account'],
-			'href' => $this->url->link('account/account', '', true)
+			'href' => $this->link('account/account', '', true)
 		);
-
+		
 		$data['breadcrumbs'][] = array(
 			'text' => $data['heading_title'],
-			'href' => $this->url->link('account/extension', '', true)
+			'href' => $this->link('account/extension', '', true)
 		);
 
 		if (!empty($this->request->get['extension_id'])) {
 			$data['breadcrumbs'][] = array(
 				'text' => $data['text_edit_extension'],
-				'href' => $this->url->link('account/extension/add', '', true)
+				'href' => $this->link('account/extension/add', '', true)
 			);
 		} else {
 			$data['breadcrumbs'][] = array(
 				'text' => $data['text_edit_extension'],
-				'href' => $this->url->link('account/extension/edit', '', true)
+				'href' => $this->link('account/extension/edit', '', true)
 			);
 		}
 		
@@ -207,9 +204,9 @@ class ControllerAccountExtension extends Controller {
 		unset($this->error);
 		
 		if (!isset($this->request->get['extension_id'])) {
-			$data['action'] = $this->url->link('account/extension/add', '', true);
+			$data['action'] = $this->link('account/extension/add', '', true);
 		} else {
-			$data['action'] = $this->url->link('account/extension/edit', 'extension_id=' . $this->request->get['extension_id'], true);
+			$data['action'] = $this->link('account/extension/edit', 'extension_id=' . $this->request->get['extension_id'], true);
 		}
 
 		if (isset($this->request->get['extension_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
@@ -259,8 +256,10 @@ class ControllerAccountExtension extends Controller {
 		$data['versions'] 			= explode(',', $this->config->get('config_extension_versions'));
 		$data['license_types'] 		= explode(',', $this->config->get('config_extension_license_types'));
 		$data['license_periods']	= explode(',', $this->config->get('config_extension_license_periods'));
+		
+		$data['no_image']			= 'no_image.jpg';
 
-		$data['back'] 				= $this->url->link('account/extension', '', true);
+		$data['back'] 				= $this->link('account/extension', '', true);
 
 		$data['column_left'] 		= $this->load->controller('common/column_left');
 		$data['column_right'] 		= $this->load->controller('common/column_right');
@@ -300,8 +299,8 @@ class ControllerAccountExtension extends Controller {
 			$this->error['price_renew'] = $this->language->get('text_error_price_renew');
 		}
 		
-		if (empty($this->request->post['download'])) {
-			$this->error['download'] = $this->language->get('text_error_download');
+		if (empty($this->request->post['downloads'])) {
+			$this->error['downloads'] = $this->language->get('text_error_downloads');
 		}
 		
 		$tags = explode(',', $this->request->post['tag']);
@@ -321,5 +320,11 @@ class ControllerAccountExtension extends Controller {
 		}
 
 		return !$this->error;
+	}
+	
+	private function link($route, $args = '', $secure = false) {
+		$url  = ($secure && isset($this->session->data['token'])) ? '&token=' . $this->session->data['token'] : '';
+		$url .= $args;
+		return $this->url->link($route, $url, $secure);
 	}
 }

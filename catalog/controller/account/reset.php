@@ -4,7 +4,7 @@ class ControllerAccountReset extends Controller {
 
 	public function index() {
 		if ($this->customer->isLogged()) {
-			$this->response->redirect($this->url->link('account/account', '', true));
+			$this->response->redirect($this->link('account/account', '', true));
 		}
 
 		if (isset($this->request->get['code'])) {
@@ -55,17 +55,17 @@ class ControllerAccountReset extends Controller {
 
 			$data['breadcrumbs'][] = array(
 				'text' => $this->language->get('text_home'),
-				'href' => $this->url->link('common/home')
+				'href' => $this->link('common/home')
 			);
 
 			$data['breadcrumbs'][] = array(
 				'text' => $this->language->get('text_account'),
-				'href' => $this->url->link('account/account', '', true)
+				'href' => $this->link('account/account', '', true)
 			);
 
 			$data['breadcrumbs'][] = array(
 				'text' => $this->language->get('heading_title'),
-				'href' => $this->url->link('account/reset', '', true)
+				'href' => $this->link('account/reset', '', true)
 			);
 
 			if (isset($this->error['password'])) {
@@ -80,9 +80,9 @@ class ControllerAccountReset extends Controller {
 				$data['error_confirm'] = '';
 			}
 
-			$data['action'] = $this->url->link('account/reset', 'code=' . $code, true);
+			$data['action'] = $this->link('account/reset', 'code=' . $code, true);
 
-			$data['back'] = $this->url->link('account/login', '', true);
+			$data['back'] = $this->link('account/login', '', true);
 
 			if (isset($this->request->post['password'])) {
 				$data['password'] = $this->request->post['password'];
@@ -123,5 +123,11 @@ class ControllerAccountReset extends Controller {
 		}
 
 		return !$this->error;
+	}
+	
+	private function link($route, $args = '', $secure = false) {
+		$url  = ($secure && isset($this->session->data['token'])) ? '&token=' . $this->session->data['token'] : '';
+		$url .= $args;
+		return $this->link($route, $url, $secure);
 	}
 }

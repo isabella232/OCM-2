@@ -149,14 +149,63 @@
             <input type="text" name="banner" value="<?php echo $banner; ?>" placeholder="<?php echo $entry_banner; ?>" id="input-banner" class="form-control" />
             <?php if (!empty($error_banner)) { ?><div class="text-danger"><?php echo $error_banner; ?></div><?php } ?>
           </div>
-          IMAGE PLACEHOLDER
-          <input type="hidden" name="images" value="" />
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td class="text-left"><?php echo $column_image; ?></td>
+                <td class="text-left"><?php echo $column_image_file; ?></td>
+                <td class="text-left"><?php echo $column_image_sort_order; ?></td>
+                <td class="text-right"><?php echo $column_action; ?></td>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (!empty($images)) { ?>
+                <?php foreach ($images as $key => $value) { ?>
+                <tr>
+                  <td class="text-left"><img src="<?php echo $value['file']; ?>" class="img-responsive"/></td>
+                  <td class="text-left"><input type="file" name="images[<?php echo $key; ?>][file]" value="<?php echo $value['file']; ?>" class="form-control"></td>
+                  <td class="text-left"><input type="text" name="images[<?php echo $key; ?>][sort_order]" value="<?php echo $value['sort_order']; ?>" class="form-control"></td>
+                  <td class="text-right"><button type="button" class="btn btn-danger" onclick="$(this).parent().parent().remove();"><?php echo $button_remove_image; ?></button></td>
+                </tr>
+                <?php } ?>
+              <?php } ?>
+              <tr id="images-footer"><td class="text-right" colspan="4"><button type="button" class="btn btn-primary" onclick="addImage();"><?php echo $button_add_image; ?></button></td></tr>
+            </tbody>
+          </table>
         </fieldset>
         <fieldset>
           <legend><?php echo $text_download; ?></legend>
           <div class="bg-info text-info col-sm-12"><?php echo $help_download; ?></div>
-          DOWNLOAD PLACEHOLDER
-          <input type="hidden" name="downloads" value="1" />
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td class="text-left"><?php echo $column_download_name; ?></td>
+                <td class="text-left"><?php echo $column_download_file; ?></td>
+                <td class="text-left"><?php echo $column_download_compatibility; ?></td>
+                <td class="text-right"><?php echo $column_action; ?></td>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (!empty($downloads)) { ?>
+                <?php foreach ($downloads as $key => $value) { ?>
+                <tr>
+                  <td class="text-left"><input type="text" name="downloads[<?php echo $key; ?>][name]" value="<?php echo $value['name']; ?>" class="form-control"></td>
+                  <td class="text-left"><input type="file" name="downloads[<?php echo $key; ?>][file]" value="<?php echo $value['file']; ?>" class="form-control"></td>
+                  <td class="text-left">
+                    <div class="well well-sm" style="max-height:250px; overflow-y:scroll;">
+                    <?php foreach ($versions as $version) { ?>
+                      <div class="checkbox"><label><input type="checkbox" name="downloads[<?php echo $key; ?>][compatibility][]" value="<?php echo $version; ?>" <?php if (isset($value['compatibility']) && in_array($version, $value['compatibility'])) { ?>checked="checked"<?php } ?>><?php echo $version; ?></label></div>
+                    <?php } ?>
+                    </div>
+                  </td>
+                  <td class="text-right"><button type="button" class="btn btn-danger" onclick="$(this).parent().parent().remove();"><?php echo $button_remove_download; ?></button></td>
+                </tr>
+                <?php } ?>
+              <?php } ?>
+              <tr id="downloads-footer"><td class="text-right" colspan="4"><button type="button" class="btn btn-primary" onclick="addDownload();"><?php echo $button_add_download; ?></button></td></tr>
+            </tbody>
+          </table>
+          <?php if (!empty($error_downloads)) { ?><div class="text-danger"><?php echo $error_downloads; ?></div><?php } ?>
         </fieldset>
         <fieldset>
           <legend><?php echo $text_tracking; ?></legend>
@@ -201,25 +250,55 @@
 </div>
 
 <script type="text/javascript"><!--
+function addImage() {
+  var key = new Date().getTime().toString(16);
+  html  = '<tr>';
+  html += '<td class="text-left"><img src="<?php echo $no_image; ?>" class="img-responsive"/></td>';
+  html += '<td class="text-left"><input type="file" name="images['+ key +'][file]" class="form-control" value=""></td>';
+  html += '<td class="text-left"><input type="text" name="images['+ key +'][sort_order]" class="form-control" value=""></td>';
+  html += '<td class="text-right"><button type="button" class="btn btn-danger" onclick="$(this).parent().parent().remove();"><?php echo $button_remove_image; ?></button></td>';
+  html += '</tr>';
+  
+  $('#images-footer').before(html);
+}
+//--></script>
+<script type="text/javascript"><!--
+function addDownload() {
+  var key = new Date().getTime().toString(16);
+  html  = '<tr>';
+  html += '<td class="text-left"><input type="text" name="downloads['+ key +'][name]" class="form-control" value=""></td>';
+  html += '<td class="text-left"><input type="file" name="downloads['+ key +'][file]" class="form-control" value=""></td>';
+  html += '<td class="text-left"><div class="well well-sm" style="max-height:250px; overflow-y:scroll;">';
+  <?php foreach ($versions as $version) { ?>
+    html += '<div class="checkbox"><label><input type="checkbox" name="downloads['+ key +'][compatibility][]" value="<?php echo $version; ?>"><?php echo $version; ?></label></div>';
+  <?php } ?>
+  html += '</div></td>';
+  html += '<td class="text-right"><button type="button" class="btn btn-danger" onclick="$(this).parent().parent().remove();"><?php echo $button_remove_download; ?></button></td>';
+  html += '</tr>';
+  
+  $('#downloads-footer').before(html);
+}
+//--></script>
+<script type="text/javascript"><!--
 $('button[id^=\'button-upload\']').on('click', function() {
 	var node = this;
 
 	$('#form-upload').remove();
 
-	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="download" /></form>');
 
-	$('#form-upload input[name=\'file\']').trigger('click');
+	$('#form-upload input[name=\'download\']').trigger('click');
 
 	if (typeof timer != 'undefined') {
     	clearInterval(timer);
 	}
 
 	timer = setInterval(function() {
-		if ($('#form-upload input[name=\'file\']').val() != '') {
+		if ($('#form-upload input[name=\'download\']').val() != '') {
 			clearInterval(timer);
 
 			$.ajax({
-				url: 'index.php?route=tool/upload',
+				url: 'index.php?route=account/extension/upload&token=<?php echo $token; ?>',
 				type: 'post',
 				dataType: 'json',
 				data: new FormData($('#form-upload')[0]),
